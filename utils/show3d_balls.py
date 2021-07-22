@@ -4,6 +4,7 @@ import ctypes as ct
 import cv2
 import sys
 import os
+from colour import Color
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -24,21 +25,42 @@ cv2.setMouseCallback('show3d',onmouse)
 
 dll=np.ctypeslib.load_library(os.path.join(BASE_DIR, 'render_balls_so'),'.')
 
-def showpoints(xyz,c_gt=None, c_pred = None ,waittime=0,showrot=False,magnifyBlue=0,freezerot=False,background=(0,0,0),normalizecolor=True,ballradius=10):
+def showpoints(xyz, c_gt=None, c_pred=None ,waittime=0, showrot=False, magnifyBlue=0,
+              freezerot=False, background=(0,0,0), normalizecolor=True, ballradius=10, 
+              gradient=False):
+    
     global showsz,mousex,mousey,zoom,changed
     num_points = len(xyz)
     xyz=xyz-xyz.mean(axis=0)
     radius=((xyz**2).sum(axis=-1)**0.5).max()
     xyz/=(radius*2.2)/showsz
-    if c_gt is None:
-        c0=np.zeros((len(xyz),),dtype='float32')+255
-        c1=np.zeros((len(xyz),),dtype='float32')+255
-        c2=np.zeros((len(xyz),),dtype='float32')+255
-    else:
-        c0=c_gt[:,0]
-        c1=c_gt[:,1]
-        c2=c_gt[:,2]
-
+    if not gradient:
+        if c_gt is None and c_pred is None:
+            c0=np.zeros((num_points,),dtype='float32')+255
+            c1=np.zeros((num_points,),dtype='float32')+255
+            c2=np.zeros((num_points,),dtype='float32')+255
+        elif c_gt is not None and c_pred is None:
+            c0=c_gt[:,0]
+            c1=c_gt[:,1]
+            c2=c_gt[:,2]
+        elif c_gt is None and c_pred is not None:
+            c0=c_pred[:,0]
+            c1=c_pred[:,1]
+            c2=c_pred[:,2]
+        else:
+            print("There are 2 colors specified, using gt colors")
+            c0=c_gt[:,0]
+            c1=c_gt[:,1]
+            c2=c_gt[:,2]
+    else: # gradient from red to blue for all the points 
+        red = Color("red")
+        colors = list(red.range_to(Color("blue"),num_points))
+        colors_rgb = [colors[i].rgb for i in range(len(colors))]
+        colors_rgb_arr = np.array(colors_rgb, dtype='float32')
+        colors_rgb_arr *= 255
+        c0 = colors_rgb_arr[:,0]
+        c1 = colors_rgb_arr[:,1]
+        c2 = colors_rgb_arr[:,2]
 
     if normalizecolor:
         c0/=(c0.max()+1e-14)/255.0
