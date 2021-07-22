@@ -84,7 +84,7 @@ if __name__=='__main__':
         pred = pred.squeeze()
 
         show3d_balls.showpoints(ps, ballradius=8)
-        show3d_balls.showpoints(pred, ballradius=8)
+        show3d_balls.showpoints(pred, ballradius=8, gradient=True)
 
         if num_group > 1:
             c_gt = np.zeros_like(pred)
