@@ -73,20 +73,23 @@ def showpoints(xyz, c_gt=None, c_pred=None ,waittime=0, showrot=False, magnifyBl
 
     show=np.zeros((showsz,showsz,3),dtype='uint8')
     def render():
-        rotmat=np.eye(3)
         if not freezerot:
-            xangle=(mousey-0.5)*np.pi*1.2
-        else:
-            xangle=0
+            use_mousex = mousex
+            use_mousey = mousey
+        else: 
+            use_mousex = last_mousex
+            use_mousey = last_mousey
+
+        rotmat=np.eye(3)
+        # Angle 1
+        xangle=(use_mousey-0.5)*np.pi*1.2
         rotmat=rotmat.dot(np.array([
             [1.0,0.0,0.0],
             [0.0,np.cos(xangle),-np.sin(xangle)],
             [0.0,np.sin(xangle),np.cos(xangle)],
             ]))
-        if not freezerot:
-            yangle=(mousex-0.5)*np.pi*1.2
-        else:
-            yangle=0
+        # Angle 2
+        yangle=(use_mousex-0.5)*np.pi*1.2
         rotmat=rotmat.dot(np.array([
             [np.cos(yangle),0.0,-np.sin(yangle)],
             [0.0,1.0,0.0],
@@ -177,6 +180,8 @@ def showpoints(xyz, c_gt=None, c_pred=None ,waittime=0, showrot=False, magnifyBl
         elif cmd==ord('s'):
             cv2.imwrite('show3d.png',show)
         elif cmd==ord('f'):
+            last_mousey = mousey
+            last_mousex = mousex
             freezerot = ~freezerot
         if waittime!=0:
             break
