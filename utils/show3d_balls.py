@@ -4,6 +4,8 @@ import ctypes as ct
 import cv2
 import sys
 import os
+
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 showsz=800
 mousex,mousey=0.5,0.5
@@ -24,6 +26,7 @@ dll=np.ctypeslib.load_library(os.path.join(BASE_DIR, 'render_balls_so'),'.')
 
 def showpoints(xyz,c_gt=None, c_pred = None ,waittime=0,showrot=False,magnifyBlue=0,freezerot=False,background=(0,0,0),normalizecolor=True,ballradius=10):
     global showsz,mousex,mousey,zoom,changed
+    num_points = len(xyz)
     xyz=xyz-xyz.mean(axis=0)
     radius=((xyz**2).sum(axis=-1)**0.5).max()
     xyz/=(radius*2.2)/showsz
@@ -41,7 +44,6 @@ def showpoints(xyz,c_gt=None, c_pred = None ,waittime=0,showrot=False,magnifyBlu
         c0/=(c0.max()+1e-14)/255.0
         c1/=(c1.max()+1e-14)/255.0
         c2/=(c2.max()+1e-14)/255.0
-
 
     c0=np.require(c0,'float32','C')
     c1=np.require(c1,'float32','C')
@@ -96,6 +98,7 @@ def showpoints(xyz,c_gt=None, c_pred = None ,waittime=0,showrot=False,magnifyBlu
             cv2.putText(show,'xangle %d'%(int(xangle/np.pi*180)),(30,showsz-30),0,0.5,cv2.cv.CV_RGB(255,0,0))
             cv2.putText(show,'yangle %d'%(int(yangle/np.pi*180)),(30,showsz-50),0,0.5,cv2.cv.CV_RGB(255,0,0))
             cv2.putText(show,'zoom %d%%'%(int(zoom*100)),(30,showsz-70),0,0.5,cv2.cv.CV_RGB(255,0,0))
+    
     changed=True
     while True:
         if changed:
@@ -106,26 +109,26 @@ def showpoints(xyz,c_gt=None, c_pred = None ,waittime=0,showrot=False,magnifyBlu
             cmd=cv2.waitKey(10)%256
         else:
             cmd=cv2.waitKey(waittime)%256
-        if cmd==ord('q'):
+        if cmd==32: # SPACE
             break
-        elif cmd==ord('Q'):
+        elif cmd==27: # ESC
             sys.exit(0)
 
         if cmd==ord('t') or cmd == ord('p'):
             if cmd == ord('t'):
                 if c_gt is None:
-                    c0=np.zeros((len(xyz),),dtype='float32')+255
-                    c1=np.zeros((len(xyz),),dtype='float32')+255
-                    c2=np.zeros((len(xyz),),dtype='float32')+255
+                    c0=np.zeros((num_points,),dtype='float32')+255
+                    c1=np.zeros((num_points,),dtype='float32')+255
+                    c2=np.zeros((num_points,),dtype='float32')+255
                 else:
                     c0=c_gt[:,0]
                     c1=c_gt[:,1]
                     c2=c_gt[:,2]
             else:
                 if c_pred is None:
-                    c0=np.zeros((len(xyz),),dtype='float32')+255
-                    c1=np.zeros((len(xyz),),dtype='float32')+255
-                    c2=np.zeros((len(xyz),),dtype='float32')+255
+                    c0=np.zeros((num_points,),dtype='float32')+255
+                    c1=np.zeros((num_points,),dtype='float32')+255
+                    c2=np.zeros((num_points,),dtype='float32')+255
                 else:
                     c0=c_pred[:,0]
                     c1=c_pred[:,1]
@@ -138,7 +141,6 @@ def showpoints(xyz,c_gt=None, c_pred = None ,waittime=0,showrot=False,magnifyBlu
             c1=np.require(c1,'float32','C')
             c2=np.require(c2,'float32','C')
             changed = True
-
 
 
         if cmd==ord('n'):
@@ -157,6 +159,8 @@ def showpoints(xyz,c_gt=None, c_pred = None ,waittime=0,showrot=False,magnifyBlu
         if waittime!=0:
             break
     return cmd
+
+
 if __name__=='__main__':
     np.random.seed(100)
     showpoints(np.random.randn(2500,3))
