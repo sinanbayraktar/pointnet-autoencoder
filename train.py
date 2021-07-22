@@ -31,6 +31,7 @@ parser.add_argument('--optimizer', default='adam', help='adam or momentum [defau
 parser.add_argument('--decay_step', type=int, default=200000, help='Decay step for lr decay [default: 200000]')
 parser.add_argument('--decay_rate', type=float, default=0.7, help='Decay rate for lr decay [default: 0.7]')
 parser.add_argument('--no_rotation', action='store_true', help='Disable random rotation during training.')
+parser.add_argument('--save_epoch', type=int, default=20, help='Save training in each # of epochs [default: 20]')
 FLAGS = parser.parse_args()
 
 EPOCH_CNT = 0
@@ -44,6 +45,7 @@ MOMENTUM = FLAGS.momentum
 OPTIMIZER = FLAGS.optimizer
 DECAY_STEP = FLAGS.decay_step
 DECAY_RATE = FLAGS.decay_rate
+SAVE_EPOCH = FLAGS.save_epoch
 
 MODEL = importlib.import_module(FLAGS.model) # import network module
 MODEL_FILE = os.path.join(BASE_DIR, FLAGS.model+'.py')
@@ -163,7 +165,7 @@ def train():
                 log_string("Model saved in file: %s" % save_path)
 
             # Save the variables to disk.
-            if epoch % 10 == 0:
+            if epoch % SAVE_EPOCH == 0:
                 save_path = saver.save(sess, os.path.join(LOG_DIR, "model.ckpt"))
                 log_string("Model saved in file: %s" % save_path)
 
