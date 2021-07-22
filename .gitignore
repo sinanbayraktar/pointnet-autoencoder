@@ -1,0 +1,7 @@
+
+logs/*
+*.pyc
+*.so
+*.cu
+*.o
+.vscode/settings.json
