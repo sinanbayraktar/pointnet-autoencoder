@@ -137,7 +137,8 @@ def showpoints(xyz, c_gt=None, c_pred=None ,waittime=0, showrot=False, magnifyBl
         if cmd==32: # SPACE
             break
         elif cmd==27: # ESC
-            sys.exit(0)
+            # sys.exit(0)
+            break
 
         if cmd==ord('t') or cmd == ord('p'):
             if cmd == ord('t'):
