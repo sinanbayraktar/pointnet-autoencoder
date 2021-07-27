@@ -5,3 +5,4 @@ logs/*
 *.cu
 *.o
 .vscode/settings.json
+data/*
