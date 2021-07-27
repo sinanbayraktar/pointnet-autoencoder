@@ -80,13 +80,21 @@ if __name__=='__main__':
     sess, ops = get_model(batch_size=1, num_point=NUM_POINT)
     indices = np.arange(DATASET_SIZE)
     np.random.shuffle(indices)
+    stop_visualization = False
+    
     for i in range(DATASET_SIZE):
         ps, seg = TEST_DATASET[indices[i]]
         pred = inference(sess, ops, np.expand_dims(ps,0), batch_size=1) 
         pred = pred.squeeze()
 
-        show3d_balls.showpoints(ps, ballradius=8)
-        show3d_balls.showpoints(pred, ballradius=8, gradient=True)
+        if not stop_visualization: 
+            cmd = show3d_balls.showpoints(ps, ballradius=8)
+            if cmd == 27: # ESC
+                stop_visualization = True 
+        if not stop_visualization: 
+            cmd = show3d_balls.showpoints(pred, ballradius=8, gradient=True)
+            if cmd == 27: # ESC
+                stop_visualization = True 
 
         if num_group > 1:
             c_gt = np.zeros_like(pred)
