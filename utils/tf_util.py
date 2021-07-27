@@ -185,6 +185,33 @@ def conv2d(inputs,
       return outputs
 
 
+def attention_block(input, is_training, scope, r=16):
+  init = input 
+  num_in_channels = input.get_shape()[-1].value
+  batch_size = input.get_shape()[0].value
+  h = input.get_shape()[1].value
+  w = input.get_shape()[2].value
+  kernel_shape = [batch_size, 1, 1, num_in_channels]
+
+  # se = tf.nn.avg_pool2d(init, 
+  #                       ksize = [1,h,w,1],
+  #                       strides = [1,1,1,1], 
+  #                       padding = "SAME", 
+  #                       data_format='NHWC', 
+  #                       name = "avg_pool_2d_se_"+scope)
+
+  se = tf.reduce_mean(init, axis=[1,2], name="reduce_mean_se_"+scope)
+  
+  se = fully_connected(se, num_in_channels // r, bn=False, is_training=is_training,
+                       activation_fn=tf.nn.relu, scope="fc_se_1_"+scope)
+  se = fully_connected(se, num_in_channels, bn=False, is_training=is_training, 
+                      activation_fn=tf.nn.sigmoid, scope="fc_se_2_"+scope)
+
+  se = tf.reshape(se, [batch_size,1,1,-1])
+  out = tf.math.multiply(init, se, name="multiply_"+scope)
+  return out 
+
+
 def conv2d_transpose(inputs,
                      num_output_channels,
                      kernel_size,
