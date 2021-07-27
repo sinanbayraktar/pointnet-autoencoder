@@ -32,7 +32,8 @@ NUM_POINT = FLAGS.num_point
 MODEL = importlib.import_module(FLAGS.model) # import network module
 DATA_PATH = os.path.join(BASE_DIR, 'data/shapenetcore_partanno_segmentation_benchmark_v0')
 TEST_DATASET = part_dataset.PartDataset(root=DATA_PATH, npoints=NUM_POINT, classification=False, class_choice=FLAGS.category, split='test',normalize=True)
-print(len(TEST_DATASET))
+DATASET_SIZE = len(TEST_DATASET)
+print "The length of the test dataset is ", DATASET_SIZE
 
 def get_model(batch_size, num_point):
     with tf.Graph().as_default():
@@ -71,14 +72,15 @@ def inference(sess, ops, pc, batch_size):
 if __name__=='__main__':
 
     num_group = FLAGS.num_group
-    color_list = []
-    for i in range(num_group):
-        color_list.append(np.random.random((3,)))
+    if num_group > 1:
+        color_list = []
+        for i in range(num_group):
+            color_list.append(np.random.random((3,)))
 
     sess, ops = get_model(batch_size=1, num_point=NUM_POINT)
-    indices = np.arange(len(TEST_DATASET))
+    indices = np.arange(DATASET_SIZE)
     np.random.shuffle(indices)
-    for i in range(len(TEST_DATASET)):
+    for i in range(DATASET_SIZE):
         ps, seg = TEST_DATASET[indices[i]]
         pred = inference(sess, ops, np.expand_dims(ps,0), batch_size=1) 
         pred = pred.squeeze()
@@ -91,3 +93,6 @@ if __name__=='__main__':
             for i in range(num_group):
                 c_gt[i*NUM_POINT/num_group:(i+1)*NUM_POINT/num_group,:] = color_list[i]
             show3d_balls.showpoints(pred, c_gt=c_gt, ballradius=8)
+
+
+    print("END OF TESTING")
