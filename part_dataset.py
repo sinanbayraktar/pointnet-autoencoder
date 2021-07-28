@@ -40,6 +40,7 @@ def rotate_point_cloud(batch_data):
 
 class PartDataset():
     def __init__(self, root, npoints = 2500, classification = False, class_choice = None, split='train', normalize=True):
+        self.dataset = "shapenetcore"
         self.npoints = npoints
         self.root = root
         self.catfile = os.path.join(self.root, 'synsetoffset2category.txt')
@@ -130,6 +131,7 @@ class PartDataset():
 
 class TeethDataset():
     def __init__(self, root, tooth_id, split='train', normalize=True):
+        self.dataset = "teeth"
         self.root = root
         self.normalize = normalize
         self.id = tooth_id 
