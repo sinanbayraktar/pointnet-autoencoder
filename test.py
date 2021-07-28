@@ -70,6 +70,8 @@ def inference(sess, ops, pc, batch_size):
         logits[i*batch_size:(i+1)*batch_size,...] = batch_logits
     return logits
 
+
+
 if __name__=='__main__':
 
     num_group = FLAGS.num_group
