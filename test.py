@@ -17,6 +17,8 @@ import show3d_balls
 import part_dataset
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--dataset', default="shapenetcore", help="teeth or shapenetcore dataset [default: shapenetcore]")
+parser.add_argument('--tooth_id', type=int, default=8, help="Tooth class: 1-32 for tooth, 33-34 for upper/lower gums [default: 8]")
 parser.add_argument('--gpu', type=int, default=0, help='GPU to use [default: GPU 0]')
 parser.add_argument('--num_point', type=int, default=2048, help='Point Number [default: 2048]')
 parser.add_argument('--category', default=None, help='Which single class to train on [default: None]')
@@ -31,10 +33,16 @@ EVAL_DIR = os.path.dirname(MODEL_PATH)
 GPU_INDEX = FLAGS.gpu
 NUM_POINT = FLAGS.num_point
 MODEL = importlib.import_module(FLAGS.model) # import network module
-DATA_PATH = os.path.join(BASE_DIR, 'data/shapenetcore_partanno_segmentation_benchmark_v0')
-TEST_DATASET = part_dataset.PartDataset(root=DATA_PATH, npoints=NUM_POINT, classification=False, class_choice=FLAGS.category, split='test',normalize=True)
+
+if FLAGS.dataset == "shapenetcore":
+    DATA_PATH = os.path.join(BASE_DIR, 'data/shapenetcore_partanno_segmentation_benchmark_v0')
+    TEST_DATASET = part_dataset.PartDataset(root=DATA_PATH, npoints=NUM_POINT, classification=False, class_choice=FLAGS.category, split='test',normalize=True)
+elif FLAGS.dataset == "teeth":
+    DATA_PATH = os.path.join(BASE_DIR, 'data/teeth_split_data')
+    TEST_DATASET = part_dataset.TeethDataset(root=DATA_PATH, tooth_id=FLAGS.tooth_id, split="test")
 DATASET_SIZE = len(TEST_DATASET)
 print "The length of the test dataset is ", DATASET_SIZE
+
 
 def get_model(batch_size, num_point):
     with tf.Graph().as_default():
@@ -87,7 +95,10 @@ if __name__=='__main__':
     stop_visualization = False
     
     for i in range(DATASET_SIZE):
-        ps, seg = TEST_DATASET[indices[i]]
+        if TEST_DATASET.dataset == "teeth":
+            ps = TEST_DATASET[indices[i]]
+        elif TEST_DATASET.dataset == "shapenetcore":
+            ps, seg = TEST_DATASET[indices[i]]
         pred = inference(sess, ops, np.expand_dims(ps,0), batch_size=1) 
         pred = pred.squeeze()
         preds[i, :, :] = pred
