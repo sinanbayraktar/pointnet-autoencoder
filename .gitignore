@@ -1,0 +1,8 @@
+
+*.npy
+*.pyc
+data/*
+logs/*
+*.cu
+*.o
+.vscode/settings.json
