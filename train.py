@@ -192,7 +192,7 @@ def get_batch(dataset, idxs, start_idx, end_idx):
     return batch_data
 
 
-def train_one_epoch(sess, ops, train_writer):
+def train_one_epoch(sess, ops, train_writer, log_each=10):
     """ ops: dict mapping from string to tf ops """
     is_training = True
     
@@ -223,10 +223,10 @@ def train_one_epoch(sess, ops, train_writer):
         loss_sum += loss_val
         pcloss_sum += pcloss_val
 
-        if (batch_idx+1)%10 == 0:
+        if (batch_idx+1)%log_each == 0:
             log_string(' -- %03d / %03d --' % (batch_idx+1, num_batches))
-            log_string('mean loss: %f' % (loss_sum / 10))
-            log_string('mean pc loss: %f' % (pcloss_sum / 10))
+            log_string('mean loss: %f' % (loss_sum / log_each))
+            log_string('mean pc loss: %f' % (pcloss_sum / log_each))
             total_correct = 0
             total_seen = 0
             loss_sum = 0
@@ -258,6 +258,7 @@ def eval_one_epoch(sess, ops, test_writer):
         test_writer.add_summary(summary, step)
         loss_sum += loss_val
         pcloss_sum += pcloss_val
+
     log_string('eval mean loss: %f' % (loss_sum / float(num_batches)))
     log_string('eval mean pc loss: %f' % (pcloss_sum / float(num_batches)))
          
