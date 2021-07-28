@@ -128,6 +128,43 @@ class PartDataset():
         return len(self.datapath)
 
 
+class TeethDataset():
+    def __init__(self, root, tooth_id, split='train', normalize=True):
+        self.root = root
+        self.normalize = normalize
+        self.id = tooth_id 
+        self.split = split 
+
+        if split == 'trainval':
+            train_arr = np.load(os.path.join(root, "train", "sampled_vertices_tooth_" + tooth_id + "_train.npy"))
+            val_arr = np.load(os.path.join(root, "val", "sampled_vertices_tooth_" + tooth_id + "_val.npy"))
+            trainval_arr = np.concatenate((train_arr, val_arr), axis=0)
+            self.point_cloud = trainval_arr
+        elif split == 'train':
+            train_arr = np.load(os.path.join(root, "train", "sampled_vertices_tooth_" + tooth_id + "_train.npy"))
+            self.point_cloud = train_arr
+        elif split == 'val':
+            val_arr = np.load(os.path.join(root, "val", "sampled_vertices_tooth_" + tooth_id + "_val.npy"))
+            self.point_cloud = val_arr
+        elif split == 'test':
+            test_arr = np.load(os.path.join(root, "test", "sampled_vertices_tooth_" + tooth_id + "_test.npy"))
+            self.point_cloud = test_arr
+        else:
+            print('Unknown split: %s. Exiting..'%(split))
+            exit(-1) 
+
+        self.num_models = self.point_cloud.shape[0]
+        self.num_points = self.point_cloud.shape[1]
+
+
+    def __getitem__(self, index):
+        return self.point_cloud[index,:,:]
+
+
+    def __len__(self):
+        return self.num_models
+
+
 if __name__ == '__main__':
     d = PartDataset(root = os.path.join(BASE_DIR, 'data/shapenetcore_partanno_segmentation_benchmark_v0'), class_choice = ['Chair'], split='trainval')
     print(len(d))
