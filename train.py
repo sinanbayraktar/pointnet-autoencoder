@@ -169,15 +169,18 @@ def train():
                 save_path = saver.save(sess, os.path.join(LOG_DIR, "model.ckpt"))
                 log_string("Model saved in file: %s" % save_path)
 
+
 def get_batch(dataset, idxs, start_idx, end_idx):
     bsize = end_idx-start_idx
     batch_data = np.zeros((bsize, NUM_POINT, 3))
-    batch_label = np.zeros((bsize, NUM_POINT), dtype=np.int32)
     for i in range(bsize):
-        ps,seg = dataset[idxs[i+start_idx]]
+        if dataset.dataset == "teeth":
+            ps = dataset[idxs[i+start_idx]]
+        elif dataset.dataset == "shapenetcore":
+            ps, seg = dataset[idxs[i+start_idx]]
         batch_data[i,...] = ps
-        batch_label[i,:] = seg
-    return batch_data, batch_label
+    return batch_data
+
 
 def train_one_epoch(sess, ops, train_writer):
     """ ops: dict mapping from string to tf ops """
@@ -195,7 +198,7 @@ def train_one_epoch(sess, ops, train_writer):
     for batch_idx in range(num_batches):
         start_idx = batch_idx * BATCH_SIZE
         end_idx = (batch_idx+1) * BATCH_SIZE
-        batch_data, batch_label = get_batch(TRAIN_DATASET, train_idxs, start_idx, end_idx)
+        batch_data = get_batch(TRAIN_DATASET, train_idxs, start_idx, end_idx)
         # Augment batched point clouds by rotation
         if FLAGS.no_rotation:
             aug_data = batch_data
@@ -235,7 +238,7 @@ def eval_one_epoch(sess, ops, test_writer):
     for batch_idx in range(num_batches):
         start_idx = batch_idx * BATCH_SIZE
         end_idx = (batch_idx+1) * BATCH_SIZE
-        batch_data, batch_label = get_batch(TEST_DATASET, test_idxs, start_idx, end_idx)
+        batch_data = get_batch(TEST_DATASET, test_idxs, start_idx, end_idx)
 
         feed_dict = {ops['pointclouds_pl']: batch_data,
                      ops['labels_pl']: batch_data,
