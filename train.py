@@ -18,6 +18,8 @@ import part_dataset
 import show3d_balls
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--dataset', default="shapenetcore", help="teeth or shapenetcore dataset [default: shapenetcore]")
+parser.add_argument('--tooth_id', type=int, default=8, help="Tooth class: 1-32 for tooth, 33-34 for upper/lower gums [default: 8]")
 parser.add_argument('--gpu', type=int, default=0, help='GPU to use [default: GPU 0]')
 parser.add_argument('--model', default='model', help='Model name [default: model]')
 parser.add_argument('--category', default=None, help='Which single class to train on [default: None]')
@@ -63,10 +65,18 @@ BN_DECAY_CLIP = 0.99
 
 HOSTNAME = socket.gethostname()
 
-# Shapenet official train/test split
-DATA_PATH = os.path.join(BASE_DIR, 'data/shapenetcore_partanno_segmentation_benchmark_v0')
-TRAIN_DATASET = part_dataset.PartDataset(root=DATA_PATH, npoints=NUM_POINT, classification=False, class_choice=FLAGS.category, split='trainval')
-TEST_DATASET = part_dataset.PartDataset(root=DATA_PATH, npoints=NUM_POINT, classification=False, class_choice=FLAGS.category, split='test')
+## Dataset
+if FLAGS.dataset == "shapenetcore":
+    # Shapenet official train/test split
+    DATA_PATH = os.path.join(BASE_DIR, 'data/shapenetcore_partanno_segmentation_benchmark_v0')
+    TRAIN_DATASET = part_dataset.PartDataset(root=DATA_PATH, npoints=NUM_POINT, classification=False, class_choice=FLAGS.category, split='trainval')
+    TEST_DATASET = part_dataset.PartDataset(root=DATA_PATH, npoints=NUM_POINT, classification=False, class_choice=FLAGS.category, split='test')
+elif FLAGS.dataset == "teeth":
+    # Teeth dataset
+    DATA_PATH = os.path.join(BASE_DIR, 'data/teeth_split_data')
+    TRAIN_DATASET = part_dataset.TeethDataset(root=DATA_PATH, tooth_id=FLAGS.tooth_id, split="trainval")
+    TEST_DATASET = part_dataset.TeethDataset(root=DATA_PATH, tooth_id=FLAGS.tooth_id, split="test")
+
 
 def log_string(out_str):
     LOG_FOUT.write(out_str+'\n')
