@@ -42,6 +42,7 @@ def split_data(data, split, shuffle=False, perm=None):
 ## Parameters 
 NUM_POINTS = 2048
 DATA_SPLIT = (0.85, 0.05, 0.10)
+APPEND_DATA = 0
 
 ## Arange paths 
 ROOT_DIR = os.getcwd()
@@ -103,9 +104,15 @@ for i in range(1,34):
     curr_vert_arr = np.array(sampled_vertices_lists[i])
     curr_vert_cent_arr = np.array(sampled_vertices_center_lists[i])
 
+    appended_vert = curr_vert_arr
+    appended_cent = curr_vert_cent_arr
+    for k in range(APPEND_DATA-1):
+        appended_vert = np.concatenate((appended_vert, curr_vert_arr), axis=0)
+        appended_cent = np.concatenate((appended_cent, curr_vert_cent_arr), axis=0)
+
     ## Split into train/val/test splits 
-    train, val, test, perm = split_data(curr_vert_arr, DATA_SPLIT, shuffle=False, perm=None)
-    train_c, val_c, test_c, _ = split_data(curr_vert_cent_arr, DATA_SPLIT, shuffle=False, perm=perm)
+    train, val, test, perm = split_data(appended_vert, DATA_SPLIT, shuffle=False, perm=None)
+    train_c, val_c, test_c, _ = split_data(appended_cent, DATA_SPLIT, shuffle=False, perm=perm)
 
     ## Save npy files in the output directory 
     out_vert_name = "sampled_vertices_tooth_" + str(i) + "_train"
