@@ -19,7 +19,7 @@ import show3d_balls
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', default="shapenetcore", help="teeth or shapenetcore dataset [default: shapenetcore]")
-parser.add_argument('--tooth_id', type=int, default=8, help="Tooth class: 1-32 for tooth, 33-34 for upper/lower gums [default: 8]")
+parser.add_argument('--tooth_id', default="8", help="Tooth class: 1-32 for tooth, 33-34 for upper/lower gums [default: 8]")
 parser.add_argument('--gpu', type=int, default=0, help='GPU to use [default: GPU 0]')
 parser.add_argument('--model', default='model', help='Model name [default: model]')
 parser.add_argument('--category', default=None, help='Which single class to train on [default: None]')

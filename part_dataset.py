@@ -138,18 +138,18 @@ class TeethDataset():
         self.split = split 
 
         if split == 'trainval':
-            train_arr = np.load(os.path.join(root, "train", "sampled_vertices_tooth_" + str(tooth_id) + "_train.npy"))
-            val_arr = np.load(os.path.join(root, "val", "sampled_vertices_tooth_" + str(tooth_id) + "_val.npy"))
+            train_arr = np.load(os.path.join(root, "train", "sampled_vertices_tooth_" + tooth_id + "_train.npy"))
+            val_arr = np.load(os.path.join(root, "val", "sampled_vertices_tooth_" + tooth_id + "_val.npy"))
             trainval_arr = np.concatenate((train_arr, val_arr), axis=0)
             self.point_cloud = trainval_arr
         elif split == 'train':
-            train_arr = np.load(os.path.join(root, "train", "sampled_vertices_tooth_" + str(tooth_id) + "_train.npy"))
+            train_arr = np.load(os.path.join(root, "train", "sampled_vertices_tooth_" + tooth_id + "_train.npy"))
             self.point_cloud = train_arr
         elif split == 'val':
-            val_arr = np.load(os.path.join(root, "val", "sampled_vertices_tooth_" + str(tooth_id) + "_val.npy"))
+            val_arr = np.load(os.path.join(root, "val", "sampled_vertices_tooth_" + tooth_id + "_val.npy"))
             self.point_cloud = val_arr
         elif split == 'test':
-            test_arr = np.load(os.path.join(root, "test", "sampled_vertices_tooth_" + str(tooth_id) + "_test.npy"))
+            test_arr = np.load(os.path.join(root, "test", "sampled_vertices_tooth_" + tooth_id + "_test.npy"))
             self.point_cloud = test_arr
         else:
             print('Unknown split: %s. Exiting..'%(split))
